@@ -11,7 +11,7 @@ function fetch(notes, posts, next) {
   next(notes, posts)
 }
 
-function compare(notes, posts) {
+function compare(notes, posts, next) {
   // compare, update posts if necessary
   next(updated)
 }
