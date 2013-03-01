@@ -1,7 +1,7 @@
 
 # step.js
 
-  My kind of step library. Implicit error handling, argument passing, 22 lines of code.
+  My kind of step library. Execute asynchronous functions in series. Implicit error handling, argument passing, 22 lines of code.
 
 ## Example
 
