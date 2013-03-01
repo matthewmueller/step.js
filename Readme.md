@@ -34,7 +34,7 @@ With component:
 
 ## API
 
-### `Step([arg1, arg2, ...])`
+### `Step([initial1, initial2, ...])`
 
 Initialize a step library with some initial parameters.
 
@@ -47,19 +47,19 @@ Step(notes, posts)
 Run through each step functions sequentially.
 
 ```js
-function fetch(notes, posts, next) {
-  // fetch notes and posts
-  next(notes, posts)
+function fetch(next) {
+  // fetch
+  next()
 }
 
-function compare(notes, posts) {
-  // compare, update posts if necessary
-  next(updated)
+function compare(next) {
+  // compare
+  next(
 }
 
-Step(notes, posts)(fetch, compare, function(err, updated) {
+Step()(fetch, compare, function(err) {
   if(err) throw err;
-  console.log(updated);
+  console.log('done');
 });
 ```
 
