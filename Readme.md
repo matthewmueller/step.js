@@ -1,7 +1,17 @@
 
 # step.js
 
-  My kind of step library. 73 lines of code. 272 lines of tests.
+  My kind of step library. no dependencies. 73 lines of code. 272 lines of tests.
+
+## Installation
+
+  In the browser (component):
+
+      $ component install matthewmueller/step
+
+  In node:
+
+      $ npm install step.js
 
 ## Features
 
