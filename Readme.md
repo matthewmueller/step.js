@@ -7,7 +7,7 @@
 
   In the browser (component):
 
-      $ component install matthewmueller/step
+      $ component install matthewmueller/step.js
 
   In node:
 
