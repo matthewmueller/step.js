@@ -19,7 +19,7 @@
 
   * supports a variable number of arguments
   * synchronous & asynchronous support
-  * errors skip to end immediately (cannot be caught by middleware)
+  * errors skip to end immediately (errors cannot be caught by middleware)
 
 ## Example
 
