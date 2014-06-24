@@ -13,39 +13,61 @@ module.exports = Step;
 /**
  * Initialize `Step`
  *
- * @param {[Mixed, ...]} initial arguments
- * @return {Function} step function
+ * @return {Step}
+ * @api public
  */
 
 function Step() {
-  var self = this,
-      initials = slice.call(arguments),
-      before = function(next) { next.apply(self, initials) };
-
-  return function() {
-    var stack = slice.call(arguments).reverse();
-    stack.push(before);
-
-    function next(err) {
-      // Jump to last func if error occurs
-      if (err instanceof Error) return stack[0].call(self, err);
-
-      // Otherwise gather arguments and add next func to end
-      var args = slice.call(arguments);
-
-      // If we have more on the stack, tack on next function,
-      // otherwise push a null value for no error
-      if (stack.length > 1) {
-        args.push(next);
-      } else {
-        args.unshift(null);
-      }
-
-      // Call the next function on the stack with given args
-      stack.pop().apply(self, args);
-    }
-
-    // Kick us off
-    stack.pop().call(self, next);
-  };
+  if (!(this instanceof Step)) return new Step();
+  this.fns = [];
 }
+
+/**
+ * Add a step
+ *
+ * @param {Function|Array} fns
+ * @return {Step}
+ * @api public
+ */
+
+Step.prototype.use = function(fns) {
+  fns = 'function' == typeof fns ? [fns] : fns;
+  this.fns = this.fns.concat(fns);
+  return this;
+};
+
+/**
+ * Run the steps
+ *
+ * @param {Args...} args
+ * @param {Function} fn
+ * @api public
+ */
+
+Step.prototype.run = function() {
+  var fns = this.fns;
+  var args = slice.call(arguments);
+  var last = args[args.length - 1];
+  var done = 'function' == typeof last ? args.pop() : noop;
+
+  // kick us off
+  call(fns.shift(), args);
+
+  // next
+  function next(err) {
+    if (err) return done(err);
+    var args = slice.call(arguments, 1);
+    var fn = fns.pop();
+    call(fn, args);
+  }
+
+  // call
+  function call(fn, args) {
+    if (!fn) return done.apply(done, [null].concat(args));
+    else if (fn.length > args.length) fn.apply(fn, args.concat(next));
+    else {
+      var ret = fn.apply(fn, args);
+      ret instanceof Error ? next(ret) : next(null, ret);
+    }
+  }
+};

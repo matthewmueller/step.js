@@ -1,25 +1,36 @@
 
 # step.js
 
-  My kind of step library. Execute asynchronous functions in series. Implicit error handling, argument passing, 22 lines of code.
+  My kind of step library. 73 lines of code. 272 lines of tests.
+
+## Features
+
+  Similar to [ware](https://github.com/segmentio/ware) with a few key differences:
+
+  * supports a variable number of arguments
+  * synchronous & asynchronous support
+  * errors skip to end immediately (cannot be caught by middleware)
 
 ## Example
 
 ```js
 function fetch(notes, posts, next) {
   // fetch notes and posts
-  next(notes, posts)
+  next(null, notes, posts)
 }
 
-function compare(notes, posts, next) {
+function compare(notes, posts) {
   // compare, update posts if necessary
-  next(updated)
+  return updated;
 }
 
-Step(notes, posts)(fetch, compare, function(err, updated) {
-  if(err) throw err;
-  console.log(updated);
-});
+step()
+  .use(fetch)
+  .use(compare)
+  .run(function(err, updated) {
+    if(err) throw err;
+    console.log(updated);  
+  });
 ```
 
 ## Installation
@@ -34,72 +45,31 @@ With component:
 
 ## API
 
-### `Step([initial1, initial2, ...])`
+### `Step()`
 
-Initialize a step library with some initial parameters.
+  Initialize `step`.
 
-```js
-Step(notes, posts)
-```
+### `Step#use(fn|arr)`
 
-### `Step(...)([step1, step2, ...])`
-
-Run through each step functions sequentially.
+  Add a step or array of steps to be executed sequentially.
 
 ```js
-function fetch(next) {
-  // fetch
-  next()
-}
-
-function compare(next) {
-  // compare
-  next(
-}
-
-Step()(fetch, compare, function(err) {
-  if(err) throw err;
-  console.log('done');
-});
+step()
+  .use(a)
+  .use([b, c])
+  .run() // a then b then c.
 ```
 
-## Error Handling
+### `Step#run(args..., fn)`
 
-If an error occurs during the step, you simply pass it along with `next(someErr)`. At this point, step will see that `argument[0] instanceof Error` and jump to the final function in the step, passing the error along with it.
-
-```js
-function fetch(next) {
-  console.log('fetching...');
-  next(new Error('blow up'));
-}
-
-function compare(next) {
-  console.log('comparing...');
-  next();
-}
-
-Step()(fetch, compare, function(err) {
-  if(err) throw err;
-});
-```
-
-Output would be:
-
-```
-fetching...
-[Error] blow up
-```
-
-## TODO
-
-* more examples
-* more tests
+Run the steps passing a variable number of `args` to the first step. 
+Calls `fn` when all the steps run, or an error is returned.
 
 ## License
 
 (The MIT License)
 
-Copyright (c) 2012 matthew mueller &lt;mattmuelle@gmail.com&gt;
+Copyright (c) 2014 matthew mueller &lt;mattmuelle@gmail.com&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
