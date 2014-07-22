@@ -17,8 +17,9 @@
 
   Similar to [ware](https://github.com/segmentio/ware) with a few key differences:
 
-  * supports a variable number of arguments
-  * synchronous & asynchronous support
+  * transform support, return values update the argument passed through
+    while `undefined` will pass the previous value through
+  * synchronous, asynchronous & generator support
   * errors skip to end immediately (errors cannot be caught by middleware)
 
 ## Example
@@ -29,7 +30,7 @@ function fetch(notes, posts, next) {
   next(null, notes, posts)
 }
 
-function compare(notes, posts) {
+function *compare(notes, posts) {
   // compare, update posts if necessary
   return updated;
 }
@@ -39,7 +40,7 @@ step()
   .use(compare)
   .run(function(err, updated) {
     if(err) throw err;
-    console.log(updated);  
+    console.log(updated);
   });
 ```
 
@@ -55,11 +56,11 @@ With component:
 
 ## API
 
-### `Step()`
+### `Step([fn|arr|step])`
 
   Initialize `step`.
 
-### `Step#use(fn|arr)`
+### `Step#use(fn|arr|step)`
 
   Add a step or array of steps to be executed sequentially.
 
@@ -72,7 +73,7 @@ step()
 
 ### `Step#run(args..., fn)`
 
-Run the steps passing a variable number of `args` to the first step. 
+Run the steps passing a variable number of `args` to the first step.
 Calls `fn` when all the steps run, or an error is returned.
 
 ## License

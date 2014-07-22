@@ -10,9 +10,9 @@ var assert = require('assert');
  */
 
 describe('step', function() {
-  
+
   describe('no steps', function() {
-    
+
     it('should work without any args', function(done) {
       step().run(function(err) {
         assert(!err);
@@ -63,6 +63,22 @@ describe('step', function() {
         });
     })
 
+    it('should pass args through (gen)', function (done) {
+      function *a(msg) {
+        assert('hi' == msg);
+        yield wait(100);
+        return 'hello';
+      }
+
+      step()
+        .use(a)
+        .run('hi', function(err, msg) {
+          assert(!err);
+          assert('hello' == msg);
+          done();
+        });
+    })
+
     it('should propagate errors (sync)', function(done) {
       function a(msg) {
         assert('hi' == msg);
@@ -84,6 +100,22 @@ describe('step', function() {
         setTimeout(function() {
           next(new TypeError('blow up'), msg);
         }, 0)
+      }
+
+      step()
+        .use(a)
+        .run('hi', function(err, msg) {
+          assert('blow up' == err.message);
+          assert(!msg);
+          done();
+        });
+    })
+
+    it('should propagate errors (gen)', function(done) {
+      function *a(msg) {
+        assert('hi' == msg);
+        yield wait(100);
+        throw new TypeError('blow up');
       }
 
       step()
@@ -141,7 +173,7 @@ describe('step', function() {
         .run('hi', 'wahoo', function(err, msg, msg2) {
           assert(!err);
           assert('howdy' == msg);
-          assert(!msg2);
+          assert('yahoo' == msg2);
           done();
         });
     });
@@ -153,8 +185,10 @@ describe('step', function() {
         return 'hello';
       }
 
-      function b(msg, next) {
+      function b(msg, msg2, next) {
         assert('hello' == msg);
+        assert('wahoo' == msg2);
+
         setTimeout(function() {
           next(null, 'howdy');
         }, 0);
@@ -166,7 +200,7 @@ describe('step', function() {
         .run('hi', 'wahoo', function(err, msg, msg2) {
           assert(!err);
           assert('howdy' == msg);
-          assert(!msg2);
+          assert('wahoo' == msg2);
           done();
         });
     });
@@ -177,7 +211,7 @@ describe('step', function() {
         assert('wahoo' == msg2);
       }
 
-      function b(next) {
+      function b(msg, msg2, next) {
         setTimeout(next, 0);
       }
 
@@ -186,8 +220,8 @@ describe('step', function() {
         .use(b)
         .run('hi', 'wahoo', function(err, msg, msg2) {
           assert(!err);
-          assert(!msg);
-          assert(!msg2);
+          assert('hi' == msg);
+          assert('wahoo' == msg2);
           done();
         });
     });
@@ -201,7 +235,7 @@ describe('step', function() {
         return new Error('blow up');
       }
 
-      function b(next) {
+      function b(msg, msg2, next) {
         called = true;
         setTimeout(next, 0);
       }
@@ -227,7 +261,7 @@ describe('step', function() {
         next(new Error('blow up'));
       }
 
-      function b(next) {
+      function b(msg, msg2, next) {
         called = true;
         setTimeout(next, 0);
       }
@@ -251,8 +285,9 @@ describe('step', function() {
         return 'hello';
       }
 
-      function b(msg, next) {
+      function b(msg, msg2, next) {
         assert('hello' == msg);
+        assert('wahoo' == msg2);
         setTimeout(function() {
           next(null, 'howdy');
         }, 0);
@@ -263,10 +298,73 @@ describe('step', function() {
         .run('hi', 'wahoo', function(err, msg, msg2) {
           assert(!err);
           assert('howdy' == msg);
+          assert('wahoo' == msg2);
+          done();
+        });
+    })
+
+    it('step#use(fn) should work with generators', function(done) {
+      function a(msg, msg2) {
+        assert('hi' == msg);
+        assert('wahoo' == msg2);
+        return 'hello';
+      }
+
+      function *b(msg) {
+        assert('hello' == msg);
+        yield wait(100);
+        return 'howdy';
+      }
+
+      step()
+        .use(a)
+        .use(b)
+        .run('hi', 'wahoo', function(err, msg, msg2) {
+          assert(!err);
+          assert('howdy' == msg);
+          assert('wahoo' == msg2);
+          done();
+        });
+    })
+
+    it('should skip functions if an error happens (async)', function(done) {
+      var called = false;
+
+      function *a(msg, msg2) {
+        assert('hi' == msg);
+        assert('wahoo' == msg2);
+        throw new Error('blow up');
+      }
+
+      function b() {
+        called = true;
+      }
+
+      step()
+        .use(a)
+        .use(b)
+        .run('hi', 'wahoo', function(err, msg, msg2) {
+          assert('blow up' == err.message);
+          assert(!called);
+          assert(!msg);
           assert(!msg2);
           done();
-        });      
-    })
+        });
+    });
 
   })
 });
+
+/**
+ * Wait `ms` milliseconds
+ *
+ * @param {Number} ms
+ * @return {Function}
+ * @api private
+ */
+
+function wait(ms) {
+  return function(fn) {
+    setTimeout(fn, ms);
+  };
+}
