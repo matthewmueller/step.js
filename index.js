@@ -3,6 +3,7 @@
  */
 
 var slice = Array.prototype.slice;
+var noop = function() {};
 var co = require('co');
 
 /**
@@ -50,8 +51,8 @@ Step.prototype.use = function(fn) {
 
 Step.prototype.run = function() {
   var args = slice.call(arguments);
+  var fns = slice.call(this.fns);
   var len = args.length;
-  var fns = this.fns;
   var ctx = this;
 
   // callback or noop

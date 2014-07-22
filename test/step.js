@@ -126,6 +126,20 @@ describe('step', function() {
           done();
         });
     })
+
+    it('should allow you to call run multiple times', function() {
+      called = 0;
+      function a() {
+        called++;
+      }
+
+      var s = step();
+      s.use(a);
+      s.run();
+      s.run();
+
+      assert(2 == called);
+    })
   })
 
   describe('multiple steps', function() {
@@ -351,7 +365,6 @@ describe('step', function() {
           done();
         });
     });
-
   })
 });
 
