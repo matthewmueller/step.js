@@ -30,7 +30,7 @@ function fetch(notes, posts, next) {
   next(null, notes, posts)
 }
 
-function compare(notes, posts) {
+function *compare(notes, posts) {
   // compare, update posts if necessary
   return updated;
 }
