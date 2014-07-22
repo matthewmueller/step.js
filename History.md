@@ -1,4 +1,9 @@
 
+2.0.1 / 2014-07-22
+==================
+
+ * allow you to run step#run() multiple times on the same instance
+
 2.0.0 / 2014-07-22
 ==================
 
