@@ -1,7 +1,7 @@
 {
-  "name" : "step.js",
-  "version" : "1.0.0",
-  "repo" : "matthewmueller/step.js",
-  "description" : "my kind of step library",
-  "scripts" : "index.js"
+  "name": "step.js",
+  "version": "2.0.0",
+  "repo": "matthewmueller/step.js",
+  "description": "my kind of step library",
+  "scripts": "index.js"
 }
