@@ -23,6 +23,7 @@ module.exports = Step;
 function Step(fn) {
   if (!(this instanceof Step)) return new Step(fn);
   this.fns = [];
+  this.length = 0;
   fn && this.use(fn);
 }
 
@@ -38,6 +39,7 @@ Step.prototype.use = function(fn) {
   if (fn instanceof Step) this.fns = this.fns.concat(fn.fns);
   else if (fn instanceof Array) this.fns = this.fns.concat(fn);
   else this.fns.push(fn);
+  this.length = this.fns.length;
   return this;
 };
 
