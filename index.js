@@ -101,7 +101,7 @@ function extend(a, b) {
   var out = [];
 
   for (var i = 0; i < len; i++) {
-    out[i] = undefined == b[i] ? a[i] : b[i];
+    out[i] = undefined === b[i] ? a[i] : b[i];
   }
 
   return out;
