@@ -127,7 +127,7 @@ describe('step', function() {
         });
     })
 
-    it('should allow you to call run multiple times', function() {
+    it('should allow you to call run multiple times', function(done) {
       called = 0;
       function a() {
         called++;
@@ -135,10 +135,13 @@ describe('step', function() {
 
       var s = step();
       s.use(a);
-      s.run();
-      s.run();
 
-      assert(2 == called);
+      s.run(function() {
+        s.run(function() {
+          assert(2 == called);
+          done();
+        })
+      });
     })
   })
 

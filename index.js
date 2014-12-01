@@ -63,7 +63,10 @@ Step.prototype.run = function() {
     : noop;
 
   // kick us off
-  call(fns.shift(), args);
+  // next tick to ensure we're async (no double callbacks)
+  setTimeout(function() {
+    call(fns.shift(), args);
+  }, 0);
 
   // next
   function next(err) {
