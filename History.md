@@ -1,4 +1,9 @@
 
+2.0.5 / 2014-11-30
+==================
+
+  * ensure step is always async, even if plugins are all sync
+
 2.0.4 / 2014-11-28
 ==================
 
