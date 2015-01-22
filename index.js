@@ -2,7 +2,7 @@
  * Module Dependencies
  */
 
-var flatten = require('lodash.flatten');
+var flatten = require('arr-flatten');
 var sliced = require('sliced');
 var wrap = require('wrap-fn');
 var noop = function() {};

@@ -5,6 +5,8 @@
   "description": "my kind of step library",
   "scripts": "index.js",
   "dependencies": {
-    "tj/co": "4.0.x"
+    "jonschlinkert/arr-flatten": "1.0.0",
+    "aheckmann/sliced": "0.0.5",
+    "matthewmueller/wrap-fn": "^0.1.4"
   }
 }

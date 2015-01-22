@@ -1,7 +1,7 @@
 
 # step.js
 
-  My kind of step library. no dependencies. 73 lines of code. 272 lines of tests.
+  My kind of step library. 100 lines of code. 384 lines of tests.
 
 ## Installation
 
@@ -19,7 +19,7 @@
 
   * transform support, return values update the argument passed through
     while `undefined` will pass the previous value through
-  * synchronous, asynchronous & generator support
+  * synchronous, asynchronous, generator, & promise support
   * errors skip to end immediately (errors cannot be caught by middleware)
 
 ## Example
