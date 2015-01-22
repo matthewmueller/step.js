@@ -1,4 +1,11 @@
 
+3.0.0 / 2015-01-22
+==================
+
+  * API change.
+  * Now using wrap-fn for better error handling and promise support
+  * Supports passing a context
+
 2.0.5 / 2014-11-30
 ==================
 
