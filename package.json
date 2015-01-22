@@ -5,7 +5,10 @@
   "keywords": [],
   "author": "matthew mueller <mattmuelle@gmail.com>",
   "dependencies": {
-    "co": "^3.0.6"
+    "co": "^3.0.6",
+    "extend.js": "0.0.2",
+    "lodash.flatten": "^2.4.1",
+    "wrap-fn": "^0.1.4"
   },
   "devDependencies": {
     "mocha": "*"

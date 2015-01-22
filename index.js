@@ -2,9 +2,10 @@
  * Module Dependencies
  */
 
-var slice = Array.prototype.slice;
+var flatten = require('lodash.flatten');
+var sliced = require('sliced');
+var wrap = require('wrap-fn');
 var noop = function() {};
-var co = require('co');
 
 /**
  * Export `Step`
@@ -20,11 +21,35 @@ module.exports = Step;
  * @api public
  */
 
-function Step(fn) {
-  if (!(this instanceof Step)) return new Step(fn);
-  this.fns = [];
-  this.length = 0;
-  fn && this.use(fn);
+function Step() {
+  var args = sliced(arguments);
+
+  return function step() {
+    var fns = flatten(sliced(arguments).map(use));
+    var last = fns.pop();
+    var ctx = this;
+
+    // kick us off
+    // next tick to ensure we're async (no double callbacks)
+    setTimeout(function() {
+      call(fns.shift(), args);
+    }, 0);
+
+    // next
+    function next(err) {
+      if (err) return last(err);
+      var arr = sliced(arguments, 1);
+      args = extend(args, arr);
+      var fn = fns.shift();
+      call(fn, args);
+    }
+
+    // call
+    function call(fn, args) {
+      if (!fn) return last.apply(ctx, [null].concat(args));
+      else return wrap(fn, next).apply(ctx, args);
+    }
+  }
 }
 
 /**
@@ -35,62 +60,10 @@ function Step(fn) {
  * @api public
  */
 
-Step.prototype.use = function(fn) {
-  if (fn instanceof Step) this.fns = this.fns.concat(fn.fns);
-  else if (fn instanceof Array) this.fns = this.fns.concat(fn);
-  else this.fns.push(fn);
-  this.length = this.fns.length;
-  return this;
-};
-
-/**
- * Run the steps
- *
- * @param {Args...} args
- * @param {Function} fn
- * @api public
- */
-
-Step.prototype.run = function() {
-  var args = slice.call(arguments);
-  var fns = slice.call(this.fns);
-  var len = args.length;
-  var ctx = this;
-
-  // callback or noop
-  var done = 'function' == typeof args[len - 1]
-    ? args.pop()
-    : noop;
-
-  // kick us off
-  // next tick to ensure we're async (no double callbacks)
-  setTimeout(function() {
-    call(fns.shift(), args);
-  }, 0);
-
-  // next
-  function next(err) {
-    if (err) return done(err);
-    var arr = slice.call(arguments, 1);
-    args = extend(args, arr);
-    var fn = fns.shift();
-    call(fn, args);
-  }
-
-  // call
-  function call(fn, args) {
-    if (!fn) {
-      return done.apply(done, [null].concat(args));
-    } else if (fn.length > args.length) {
-      fn.apply(ctx, args.concat(next));
-    } else if (generator(fn)) {
-      co(fn).apply(ctx, args.concat(next));
-    } else {
-      var ret = fn.apply(ctx, args);
-      ret instanceof Error ? next(ret) : next(null, ret);
-    }
-  }
-};
+function use(fn) {
+  if (fn instanceof Step) return fn.fns;
+  return fn;
+}
 
 /**
  * Pull values from another array
