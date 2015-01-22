@@ -14,14 +14,14 @@ describe('step', function() {
   describe('no steps', function() {
 
     it('should work without any args', function(done) {
-      step().run(function(err) {
+      step()(function(err) {
         assert(!err);
         done();
       });
     })
 
     it('should pass args through', function(done) {
-      step().run('hi', 'hello', function(err, msg, msg2) {
+      step('hi', 'hello')(function(err, msg, msg2) {
         assert(!err);
         assert('hi' == msg);
         assert('hello' == msg2);
@@ -37,13 +37,11 @@ describe('step', function() {
         return 'hello';
       }
 
-      step()
-        .use(a)
-        .run('hi', function(err, msg) {
-          assert(!err);
-          assert('hello' == msg);
-          done()
-        });
+      step('hi')(a, function(err, msg) {
+        assert(!err);
+        assert('hello' == msg);
+        done()
+      });
     })
 
     it('should pass args through (async)', function(done) {
@@ -54,9 +52,7 @@ describe('step', function() {
         }, 0);
       }
 
-      step()
-        .use(a)
-        .run('hi', function(err, msg) {
+      step('hi')(a, function(err, msg) {
           assert(!err);
           assert('hello' == msg);
           done();
@@ -70,13 +66,11 @@ describe('step', function() {
         return 'hello';
       }
 
-      step()
-        .use(a)
-        .run('hi', function(err, msg) {
-          assert(!err);
-          assert('hello' == msg);
-          done();
-        });
+      step('hi')(a, function(err, msg) {
+        assert(!err);
+        assert('hello' == msg);
+        done();
+      });
     })
 
     it('should propagate errors (sync)', function(done) {
@@ -85,13 +79,11 @@ describe('step', function() {
         return new TypeError('blow up');
       }
 
-      step()
-        .use(a)
-        .run('hi', function(err, msg) {
-          assert('blow up' == err.message);
-          assert(!msg);
-          done();
-        });
+      step('hi')(a, function(err, msg) {
+        assert('blow up' == err.message);
+        assert(!msg);
+        done();
+      });
     })
 
     it('should propagate errors(async)', function(done) {
@@ -102,13 +94,27 @@ describe('step', function() {
         }, 0)
       }
 
-      step()
-        .use(a)
-        .run('hi', function(err, msg) {
-          assert('blow up' == err.message);
-          assert(!msg);
-          done();
-        });
+      step('hi')(a, function(err, msg) {
+        assert('blow up' == err.message);
+        assert(!msg);
+        done();
+      });
+    })
+
+    it('should catch sync errors inside async fns', function(done) {
+      function a(msg, next) {
+        assert('hi' == msg);
+        throw new Error('blow up');
+        setTimeout(function() {
+          next(null, msg);
+        }, 0)
+      }
+
+      step('hi')(a, function(err, msg) {
+        assert('blow up' == err.message);
+        assert(!msg);
+        done();
+      });
     })
 
     it('should propagate errors (gen)', function(done) {
@@ -118,9 +124,7 @@ describe('step', function() {
         throw new TypeError('blow up');
       }
 
-      step()
-        .use(a)
-        .run('hi', function(err, msg) {
+      step('hi')(a, function(err, msg) {
           assert('blow up' == err.message);
           assert(!msg);
           done();
@@ -134,10 +138,9 @@ describe('step', function() {
       }
 
       var s = step();
-      s.use(a);
 
-      s.run(function() {
-        s.run(function() {
+      s(a, function() {
+        s(a, function() {
           assert(2 == called);
           done();
         })
@@ -157,14 +160,11 @@ describe('step', function() {
         return 'howdy';
       }
 
-      step()
-        .use(a)
-        .use(b)
-        .run('hi', function(err, msg) {
-          assert(!err);
-          assert('howdy' == msg);
-          done();
-        });
+      step('hi')(a, b, function(err, msg) {
+        assert(!err);
+        assert('howdy' == msg);
+        done();
+      });
     });
 
     it('should pass args through (async)', function(done) {
@@ -184,15 +184,12 @@ describe('step', function() {
         }, 0);
       }
 
-      step()
-        .use(a)
-        .use(b)
-        .run('hi', 'wahoo', function(err, msg, msg2) {
-          assert(!err);
-          assert('howdy' == msg);
-          assert('yahoo' == msg2);
-          done();
-        });
+      step('hi', 'wahoo')(a, b, function(err, msg, msg2) {
+        assert(!err);
+        assert('howdy' == msg);
+        assert('yahoo' == msg2);
+        done();
+      });
     });
 
     it('should work with both sync and async fns', function(done) {
@@ -211,15 +208,12 @@ describe('step', function() {
         }, 0);
       }
 
-      step()
-        .use(a)
-        .use(b)
-        .run('hi', 'wahoo', function(err, msg, msg2) {
-          assert(!err);
-          assert('howdy' == msg);
-          assert('wahoo' == msg2);
-          done();
-        });
+      step('hi', 'wahoo')(a, b, function(err, msg, msg2) {
+        assert(!err);
+        assert('howdy' == msg);
+        assert('wahoo' == msg2);
+        done();
+      });
     });
 
     it('functions dont need to return anything', function(done) {
@@ -232,15 +226,12 @@ describe('step', function() {
         setTimeout(next, 0);
       }
 
-      step()
-        .use(a)
-        .use(b)
-        .run('hi', 'wahoo', function(err, msg, msg2) {
-          assert(!err);
-          assert('hi' == msg);
-          assert('wahoo' == msg2);
-          done();
-        });
+      step('hi', 'wahoo')(a, b, function(err, msg, msg2) {
+        assert(!err);
+        assert('hi' == msg);
+        assert('wahoo' == msg2);
+        done();
+      });
     });
 
     it('should skip functions if an error happens (sync)', function(done) {
@@ -257,16 +248,13 @@ describe('step', function() {
         setTimeout(next, 0);
       }
 
-      step()
-        .use(a)
-        .use(b)
-        .run('hi', 'wahoo', function(err, msg, msg2) {
-          assert('blow up' == err.message);
-          assert(!called);
-          assert(!msg);
-          assert(!msg2);
-          done();
-        });
+      step('hi', 'wahoo')(a, b, function(err, msg, msg2) {
+        assert('blow up' == err.message);
+        assert(!called);
+        assert(!msg);
+        assert(!msg2);
+        done();
+      });
     })
 
     it('should skip functions if an error happens (async)', function(done) {
@@ -283,10 +271,7 @@ describe('step', function() {
         setTimeout(next, 0);
       }
 
-      step()
-        .use(a)
-        .use(b)
-        .run('hi', 'wahoo', function(err, msg, msg2) {
+      step('hi', 'wahoo')(a, b, function(err, msg, msg2) {
           assert('blow up' == err.message);
           assert(!called);
           assert(!msg);
@@ -310,14 +295,12 @@ describe('step', function() {
         }, 0);
       }
 
-      step()
-        .use([a, b])
-        .run('hi', 'wahoo', function(err, msg, msg2) {
-          assert(!err);
-          assert('howdy' == msg);
-          assert('wahoo' == msg2);
-          done();
-        });
+      step('hi', 'wahoo')([a, b], function(err, msg, msg2) {
+        assert(!err);
+        assert('howdy' == msg);
+        assert('wahoo' == msg2);
+        done();
+      });
     })
 
     it('step#use(fn) should work with generators', function(done) {
@@ -333,15 +316,12 @@ describe('step', function() {
         return 'howdy';
       }
 
-      step()
-        .use(a)
-        .use(b)
-        .run('hi', 'wahoo', function(err, msg, msg2) {
-          assert(!err);
-          assert('howdy' == msg);
-          assert('wahoo' == msg2);
-          done();
-        });
+      step('hi', 'wahoo')(a, b, function(err, msg, msg2) {
+        assert(!err);
+        assert('howdy' == msg);
+        assert('wahoo' == msg2);
+        done();
+      });
     })
 
     it('should skip functions if an error happens (async)', function(done) {
@@ -357,17 +337,34 @@ describe('step', function() {
         called = true;
       }
 
-      step()
-        .use(a)
-        .use(b)
-        .run('hi', 'wahoo', function(err, msg, msg2) {
-          assert('blow up' == err.message);
-          assert(!called);
-          assert(!msg);
-          assert(!msg2);
-          done();
-        });
+      step('hi', 'wahoo')(a, b, function(err, msg, msg2) {
+        assert('blow up' == err.message);
+        assert(!called);
+        assert(!msg);
+        assert(!msg2);
+        done();
+      });
     });
+
+    it('should support a context', function(done) {
+      function *a(msg) {
+        assert('hi' == msg);
+        this.a = 'a';
+      }
+
+      function b(msg) {
+        assert('hi' == msg);
+        this.b = 'b';
+      }
+
+      step('hi').call({}, a, b, function(err, msg) {
+        if (err) return done(err);
+        assert(this.a = 'a');
+        assert(this.b = 'b');
+        assert('hi' == msg);
+        done();
+      });
+    })
   })
 });
 

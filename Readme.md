@@ -35,13 +35,10 @@ function *compare(notes, posts) {
   return updated;
 }
 
-step()
-  .use(fetch)
-  .use(compare)
-  .run(function(err, updated) {
-    if(err) throw err;
-    console.log(updated);
-  });
+step(notes, posts)(fetch, compare, function(err, updated) {
+  if(err) throw err;
+  console.log(updated);
+});
 ```
 
 ## Installation
@@ -56,25 +53,19 @@ With component:
 
 ## API
 
-### `Step([fn|arr|step])`
+### `Step(args, ...)([fn|generator|promise|arr|step], ...)`
 
-  Initialize `step`.
+  Initialize `step`. Returns a function to chain functions, generators, arrays, and other step instances.
 
-### `Step#use(fn|arr|step)`
-
-  Add a step or array of steps to be executed sequentially.
-
-```js
-step()
-  .use(a)
-  .use([b, c])
-  .run() // a then b then c.
+```
+Step('a', 'b')(fn1, fn2, done);
 ```
 
-### `Step#run(args..., fn)`
+Also supports a `context`:
 
-Run the steps passing a variable number of `args` to the first step.
-Calls `fn` when all the steps run, or an error is returned.
+```
+Step('a', 'b').call({}, fn1, fn2, done);
+```
 
 ## License
 
