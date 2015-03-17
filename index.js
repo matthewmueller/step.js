@@ -30,10 +30,7 @@ function Step() {
     var ctx = this;
 
     // kick us off
-    // next tick to ensure we're async (no double callbacks)
-    setTimeout(function() {
-      call(fns.shift(), args);
-    }, 0);
+    call(fns.shift(), args);
 
     // next
     function next(err) {
