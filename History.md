@@ -1,4 +1,9 @@
 
+3.1.0 / 2015-03-17
+==================
+
+  * remove always async (due to double callbacks). I *think* this is handled downstream via wrap-fn's once(...), but I could be wrong
+
 3.0.1 / 2015-01-22
 ==================
 
